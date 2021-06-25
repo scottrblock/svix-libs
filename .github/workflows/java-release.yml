@@ -20,6 +20,11 @@ jobs:
           java-version: '16'
           distribution: 'adopt'
 
+      - name: Regen openapi libs
+        run: |
+          yarn
+          ./regen_openapi.sh
+
       - name: Build with Gradle
         run: |
           cd java
