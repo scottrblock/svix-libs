@@ -99,6 +99,20 @@ test("valid signature is valid and returns valid json", () => {
   wh.verify(testPayload.payload, testPayload.header);
 });
 
+test("valid unbranded signature is valid and returns valid json", () => {
+  const wh = new Webhook("MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw");
+
+  const testPayload = new TestPayload();
+  const unbrandedHeaders: Record<string, string> = {
+    "webhook-id": testPayload.header["svix-id"],
+    "webhook-signature": testPayload.header["svix-signature"],
+    "webhook-timestamp": testPayload.header["svix-timestamp"],
+  };
+  testPayload.header = unbrandedHeaders;
+
+  wh.verify(testPayload.payload, testPayload.header);
+});
+
 test("old timestamp fails", () => {
   const wh = new Webhook("MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw");
 

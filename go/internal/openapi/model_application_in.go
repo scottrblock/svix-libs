@@ -18,6 +18,7 @@ import (
 type ApplicationIn struct {
 	Name string `json:"name"`
 	RateLimit *int32 `json:"rateLimit,omitempty"`
+	// Optional unique identifier for the application
 	Uid *string `json:"uid,omitempty"`
 }
 

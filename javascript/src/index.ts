@@ -11,6 +11,7 @@ import {
   ListResponseEndpointOut,
   EndpointOut,
   EndpointIn,
+  EndpointUpdate,
   EndpointSecretOut,
   MessageApi,
   MessageOut,
@@ -41,7 +42,7 @@ import * as base64 from "@stablelib/base64";
 import * as sha256 from "fast-sha256";
 
 const WEBHOOK_TOLERANCE_IN_SECONDS = 5 * 60; // 5 minutes
-const VERSION = "0.27.0";
+const VERSION = "0.30.0";
 
 class UserAgentMiddleware implements Middleware {
   public pre(context: RequestContext): Promise<RequestContext> {
@@ -122,14 +123,17 @@ export type EndpointListOptions = ListOptions;
 
 export interface EventTypeListOptions extends ListOptions {
   withContent?: boolean;
-};
+}
 
 export interface MessageListOptions extends ListOptions {
   eventTypes?: string[];
+  before?: Date;
 }
 
 export interface MessageAttemptListOptions extends ListOptions {
   status?: MessageStatus;
+  eventTypes?: string[];
+  before?: Date;
 }
 
 class Application {
@@ -185,12 +189,12 @@ class Endpoint {
   public update(
     appId: string,
     endpointId: string,
-    endpointIn: EndpointIn
+    endpointUpdate: EndpointUpdate
   ): Promise<EndpointOut> {
     return this.api.updateEndpointApiV1AppAppIdEndpointEndpointIdPut({
       appId,
       endpointId,
-      endpointIn,
+      endpointUpdate,
     });
   }
 
@@ -360,6 +364,12 @@ export interface WebhookRequiredHeaders {
   "svix-signature": string;
 }
 
+export interface WebhookUnbrandedRequiredHeaders {
+  "webhook-id": string;
+  "webhook-timestamp": string;
+  "webhook-signature": string;
+}
+
 export class Webhook {
   private static prefix = "whsec_";
   private readonly key: Uint8Array;
@@ -373,19 +383,28 @@ export class Webhook {
 
   public verify(
     payload: string,
-    headers_: WebhookRequiredHeaders | Record<string, string>
+    headers_:
+      | WebhookRequiredHeaders
+      | WebhookUnbrandedRequiredHeaders
+      | Record<string, string>
   ): unknown {
     const headers: Record<string, string> = {};
     for (const key of Object.keys(headers_)) {
       headers[key.toLowerCase()] = (headers_ as Record<string, string>)[key];
     }
 
-    const msgId = headers["svix-id"];
-    const msgSignature = headers["svix-signature"];
-    const msgTimestamp = headers["svix-timestamp"];
+    let msgId = headers["svix-id"];
+    let msgSignature = headers["svix-signature"];
+    let msgTimestamp = headers["svix-timestamp"];
 
     if (!msgSignature || !msgId || !msgTimestamp) {
-      throw new WebhookVerificationError("Missing required headers");
+      msgId = headers["webhook-id"];
+      msgSignature = headers["webhook-signature"];
+      msgTimestamp = headers["webhook-timestamp"];
+
+      if (!msgSignature || !msgId || !msgTimestamp) {
+        throw new WebhookVerificationError("Missing required headers");
+      }
     }
 
     const timestamp = this.verifyTimestamp(msgTimestamp);

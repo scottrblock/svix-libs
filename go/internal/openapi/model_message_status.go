@@ -15,15 +15,15 @@ import (
 	"fmt"
 )
 
-// MessageStatus The sending status of the message: - Success = 0 - Pending = 1 - Fail = 2
+// MessageStatus The sending status of the message: - Success = 0 - Pending = 1 - Fail = 2 - Sending = 3
 type MessageStatus int32
 
 // List of MessageStatus
 const (
-	_0 MessageStatus = 0
-	_1 MessageStatus = 1
-	_2 MessageStatus = 2
-	_3 MessageStatus = 3
+	MESSAGESTATUS_Success MessageStatus = 0
+	MESSAGESTATUS_Pending MessageStatus = 1
+	MESSAGESTATUS_Fail MessageStatus = 2
+	MESSAGESTATUS_Sending MessageStatus = 3
 )
 
 var allowedMessageStatusEnumValues = []MessageStatus{

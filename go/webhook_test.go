@@ -57,6 +57,18 @@ func TestWebhook(t *testing.T) {
 			expectedErr: false,
 		},
 		{
+			name:        "valid unbranded signature is valid",
+			testPayload: newTestPayload(time.Now()),
+			modifyPayload: func(tp *testPayload) {
+				unbrandedHeaders := http.Header{}
+				unbrandedHeaders.Set("webhook-id", tp.header.Get("svix-id"))
+				unbrandedHeaders.Set("webhook-timestamp", tp.header.Get("svix-timestamp"))
+				unbrandedHeaders.Set("webhook-signature", tp.header.Get("svix-signature"))
+				tp.header = unbrandedHeaders
+			},
+			expectedErr: false,
+		},
+		{
 			name:        "missing id returns error",
 			testPayload: newTestPayload(time.Now()),
 			modifyPayload: func(tp *testPayload) {

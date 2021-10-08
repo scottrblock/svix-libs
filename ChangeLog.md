@@ -1,5 +1,23 @@
 # Changelog
 
+## Version 0.30.0
+* Kotlin: Initial async kotlin library 🚀
+* All: Improved naming for Integer Enums 📛
+* JS: Update dependencies 🆕
+* Java: Cleanup list option code using generics 🤓
+
+## Version 0.29.0
+* All: Add before option to message apis
+* Java: Cleanup list options
+* All: Add ability to set signing secret
+* All: add event type filtering to message attempt api
+* All: support for endpoint uids
+
+## Version 0.28.0
+* All: Adds support for unbranded webhooks 📋
+* PHP: Improve tests and validation for sign function 🐞
+* Java: Set descriptive message on APIExceptions 🆕
+
 ## Version 0.27.0
 * All: Adds Sending to MessageStatus 📤
 * All: Add support for Schemas in EventType API 🆕

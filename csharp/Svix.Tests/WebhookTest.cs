@@ -100,6 +100,21 @@ namespace Svix.Tests
         }
 
         [Fact]
+        public void TestUnbrandedSignatureIsValid()
+        {
+            var testPayload = new TestPayload(DateTimeOffset.UtcNow);
+            WebHeaderCollection unbrandedHeaders = new WebHeaderCollection();
+            unbrandedHeaders.Set("webhook-id", testPayload.headers.Get(TestPayload.SVIX_ID_HEADER_KEY));
+            unbrandedHeaders.Set("webhook-signature", testPayload.headers.Get(TestPayload.SVIX_SIGNATURE_HEADER_KEY));
+            unbrandedHeaders.Set("webhook-timestamp", testPayload.headers.Get(TestPayload.SVIX_TIMESTAMP_HEADER_KEY));
+            testPayload.headers = unbrandedHeaders;
+
+            var wh = new Webhook(testPayload.secret);
+
+            wh.Verify(testPayload.payload, testPayload.headers);
+        }
+
+        [Fact]
         public void TestOldTimestampThrowsException()
         {
             var testPayload = new TestPayload(DateTimeOffset.UtcNow.AddSeconds(-1 * (TOLERANCE_IN_SECONDS + 1)));
